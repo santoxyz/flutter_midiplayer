@@ -15,6 +15,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.util.PathUtils;
+import android.util.Log;
 
 /** FlutterMidiplayerPlugin */
 public class FlutterMidiplayerPlugin implements FlutterPlugin, MethodCallHandler {
@@ -70,6 +71,7 @@ public class FlutterMidiplayerPlugin implements FlutterPlugin, MethodCallHandler
       if (player != null) {
         int ms = player.getCurrentPosition();
         double pos = (double)ms*bpm/60000;
+        //Log.i("FlutterMidiplayerPlugin","ms "+ms+" - pos "+pos + " - bpm " + bpm);
         result.success(String.format(java.util.Locale.US,"%.5f",pos));
       } else {
         result.success("0.0");
