@@ -60,10 +60,19 @@ public class FlutterMidiplayerPlugin implements FlutterPlugin, MethodCallHandler
       }
     } else if (call.method.equals("START")){
       result.success(call.method);
-      player.start();
+      try {
+        player.start();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     } else if (call.method.equals("STOP")){
       result.success(call.method);
-      player.stop();
+      try {
+        player.stop();
+        player.prepare();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     } else if (call.method.equals("PAUSE")){
       result.success(call.method);
       player.pause();
