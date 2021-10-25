@@ -2,8 +2,9 @@ package com.artinoise.flutter_midiplayer;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.media.PlaybackParams;
 import android.net.Uri;
-
+import android.os.Build;
 import androidx.annotation.NonNull;
 
 import java.io.File;
@@ -27,6 +28,8 @@ public class FlutterMidiplayerPlugin implements FlutterPlugin, MethodCallHandler
   private MediaPlayer player;
   private Context context;
   private int bpm;
+  private float volume = (float) (100/127.0);
+  private float speed = (float)1.0;
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -61,7 +64,17 @@ public class FlutterMidiplayerPlugin implements FlutterPlugin, MethodCallHandler
     } else if (call.method.equals("START")){
       result.success(call.method);
       try {
+        if(player != null){
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PlaybackParams pp = player.getPlaybackParams();
+            pp.setSpeed((float)speed);
+            player.setPlaybackParams(pp);
+          } else {
+            result.notImplemented();
+          }
+        }
         player.start();
+        player.setVolume(volume,volume);
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -84,6 +97,25 @@ public class FlutterMidiplayerPlugin implements FlutterPlugin, MethodCallHandler
         result.success(String.format(java.util.Locale.US,"%.5f",pos));
       } else {
         result.success("0.0");
+      }
+    } else if (call.method.equals("SETVOLUME")){
+      double v = (double)call.argument("volume");
+      result.success(call.method + " volume=" + v);
+      try {
+        if(player != null){
+          volume = (float) (v/127.0);
+          player.setVolume(volume,volume);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    } else if (call.method.equals("SETTEMPO")){
+      double rate = (double)call.argument("rate");
+      result.success(call.method + " rate=" + rate);
+      try {
+        speed = (float) (rate/100);
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     } else if (call.method.equals("getPlatformVersion")) {
       result.success("Android " + android.os.Build.VERSION.RELEASE);

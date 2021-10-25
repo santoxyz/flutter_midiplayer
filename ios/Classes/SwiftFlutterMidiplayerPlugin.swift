@@ -4,6 +4,7 @@ import UIKit
 public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
 
   var sound: SynthSequence!
+  var volume: Double = 100
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "flutter_midiplayer", binaryMessenger: registrar.messenger())
@@ -38,6 +39,9 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
     } else if (call.method == "START"){
         result(call.method + UIDevice.current.systemVersion)
         sound.play()
+        for i in 1...15 {
+            sound.midiSynth.setVolume(channel: UInt32(i), v: Double(volume));
+        }
     } else if (call.method == "STOP"){
         result(call.method + UIDevice.current.systemVersion)
         sound.stop()
@@ -49,6 +53,25 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
             result("\(sound.sequencer.currentPositionInBeats)")
         } else {
             result("0.0")
+        }
+    } else if (call.method == "SETVOLUME") {
+        let dict = call.arguments as! Dictionary<String, Any>
+        let v = (dict["volume"] as! Double)
+        if(volume != v){
+            volume = v;
+
+            if((sound) != nil){
+                /*ogni miditrack ha un array di eventi, ogni evento potenzialmente agisce su un canale diverso. Per evitare di analizzarmi tutti gli eventi, ciclo su tutti i 16 canali possibili.*/
+                for i in 1...15 {
+                    sound.midiSynth.setVolume(channel: UInt32(i), v: Double(v));
+                }
+            }
+        }
+    } else if (call.method == "SETTEMPO") {
+        let dict = call.arguments as! Dictionary<String, Any>
+        let rate = (dict["rate"] as! Double)/100
+        if(sound != nil){
+            sound.sequencer.rate = Float(rate);
         }
     } else {
         result("unknown " + call.method + UIDevice.current.systemVersion)

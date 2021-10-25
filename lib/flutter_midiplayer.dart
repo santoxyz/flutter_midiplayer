@@ -40,4 +40,13 @@ class FlutterMidiplayer {
     return res;
   }
 
+  static Future<String> setVolume(double v) async {
+    final String res = await _channel.invokeMethod('SETVOLUME',{"volume":v});
+    return res;
+  }
+
+  static Future<String> setTempo(double rate) async {
+    final String res = await _channel.invokeMethod('SETTEMPO',{"rate":rate});
+    return res;
+  }
 }
