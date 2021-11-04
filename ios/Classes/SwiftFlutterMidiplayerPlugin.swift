@@ -67,12 +67,14 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
                 }
             }
         }
+        result(call.method)
     } else if (call.method == "SETTEMPO") {
         let dict = call.arguments as! Dictionary<String, Any>
         let rate = (dict["rate"] as! Double)/100
         if(sound != nil){
             sound.sequencer.rate = Float(rate);
         }
+        result(call.method)
     } else {
         result("unknown " + call.method + UIDevice.current.systemVersion)
     }
