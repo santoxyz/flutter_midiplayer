@@ -42,9 +42,27 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
     } else if (call.method == "START"){
         result(call.method + UIDevice.current.systemVersion)
         sound.play()
-        for i in 1...15 {
-            sound.midiSynth.setVolume(channel: UInt32(i), v: Double(volume));
+
+        if #available(iOS 10.0, *) {
+            var count = 0;
+            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
+
+                //set volume of other tracks
+                for i in 1...15 {
+                    self.sound.midiSynth.setVolume(channel: UInt32(i), v: Double(self.volume));
+                }
+                //mute rendered track
+                self.sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
+                count+=1;
+                print("count \(count)");
+                if (count > 10) {
+                    timer.invalidate()
+                }
+            }
+        } else {
+            // Fallback on earlier versions
         }
+
     } else if (call.method == "STOP"){
         result(call.method + UIDevice.current.systemVersion)
         sound.stop()
@@ -65,6 +83,9 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
 
             if((sound) != nil){
                 /*ogni miditrack ha un array di eventi, ogni evento potenzialmente agisce su un canale diverso. Per evitare di analizzarmi tutti gli eventi, ciclo su tutti i 16 canali possibili.*/
+                //mute rendered track
+                sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
+                //set volume of other tracks
                 for i in 1...15 {
                     sound.midiSynth.setVolume(channel: UInt32(i), v: Double(v));
                 }
