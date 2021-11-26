@@ -49,7 +49,9 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
 
                 //set volume of other tracks
                 for i in 1...15 {
-                    self.sound.midiSynth.setVolume(channel: UInt32(i), v: Double(self.volume));
+                    if(i != 9){
+                        self.sound.midiSynth.setVolume(channel: UInt32(i), v: Double(self.volume));
+                    }
                 }
                 //mute rendered track
                 self.sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
@@ -87,7 +89,9 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
                 sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
                 //set volume of other tracks
                 for i in 1...15 {
-                    sound.midiSynth.setVolume(channel: UInt32(i), v: Double(v));
+                    if(i != 9){
+                        sound.midiSynth.setVolume(channel: UInt32(i), v: Double(v));
+                    }
                 }
             }
         }
@@ -97,6 +101,13 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         let rate = (dict["rate"] as! Double)/100
         if(sound != nil){
             sound.sequencer.rate = Float(rate);
+        }
+        result(call.method)
+    } else if (call.method == "SETMETRONOMEVOL") {
+        let dict = call.arguments as! Dictionary<String, Any>
+        let vol = (dict["vol"] as! Double)
+        if(sound != nil){
+          sound.midiSynth.setVolume(channel: 9, v: vol);
         }
         result(call.method)
     } else {

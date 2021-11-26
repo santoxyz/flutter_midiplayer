@@ -117,6 +117,9 @@ public class FlutterMidiplayerPlugin implements FlutterPlugin, MethodCallHandler
       } catch (Exception e) {
         e.printStackTrace();
       }
+    } else if (call.method.equals("SETMETRONOMEVOL")) {
+
+      result.success("Android " + android.os.Build.VERSION.RELEASE);
     } else if (call.method.equals("getPlatformVersion")) {
       result.success("Android " + android.os.Build.VERSION.RELEASE);
     } else {
