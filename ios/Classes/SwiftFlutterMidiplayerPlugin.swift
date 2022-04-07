@@ -45,24 +45,27 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         result(call.method + UIDevice.current.systemVersion)
         sound.play()
 
-        if #available(iOS 10.0, *) {
-            var count = 0;
-            Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
+        //mute track 0 and set volume of others
+        let muteMainTrackAndAdjustVolumes = false;
+        if(muteMainTrackAndAdjustVolumes){
+            if #available(iOS 10.0, *) {
+                var count = 0;
+                Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
 
-                //set volume of other tracks
-                for i in 1...15 {
-                    if(i != 9){
-                        self.sound.midiSynth.setVolume(channel: UInt32(i), v: Double(self.volume));
+                    //set volume of other tracks
+                    for i in 1...15 {
+                        if(i != 9){
+                            self.sound.midiSynth.setVolume(channel: UInt32(i), v: Double(self.volume));
+                        }
+                    }
+                    //mute rendered track
+                    self.sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
+                    count+=1;
+                    print("count \(count)");
+                    if (count > 10) {
+                        timer.invalidate()
                     }
                 }
-                //mute rendered track
-                self.sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
-                count+=1;
-                print("count \(count)");
-                if (count > 10) {
-                    timer.invalidate()
-                }
-            }
         } else {
             // Fallback on earlier versions
         }
@@ -90,10 +93,10 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
                 //mute rendered track
                 sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
                 //set volume of other tracks
-                for i in 1...15 {
-                    if(i != 9){
+                for i in 0...15 {
+                    //if(i != 9){
                         sound.midiSynth.setVolume(channel: UInt32(i), v: Double(v));
-                    }
+                    //}
                 }
             }
         }
