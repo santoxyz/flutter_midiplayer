@@ -66,8 +66,9 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
                         timer.invalidate()
                     }
                 }
-        } else {
-            // Fallback on earlier versions
+            } else {
+                // Fallback on earlier versions
+            }
         }
 
     } else if (call.method == "STOP"){
