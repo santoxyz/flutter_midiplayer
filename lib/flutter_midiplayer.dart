@@ -12,10 +12,12 @@ class FlutterMidiplayer {
     return version;
   }
 
-  static Future<String> load(String path,[int bpm = 60]) async {
+  static Future<String> load(String path,[int bpm = 60, List patches = const [74,0], List channels = const [0,1]]) async {
     final String res = await _channel.invokeMethod('LOAD', {
       "path":path,
       "bpm":bpm,
+      "patches": patches,
+      "channels": channels
     });
     return res;
   }

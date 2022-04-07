@@ -16,6 +16,8 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
     if(call.method == "LOAD"){
         let dict = call.arguments as! Dictionary<String, Any>
         let path = dict["path"] as! String
+        let patches = dict["patches", default: [74,0]] as? Array<UInt32>
+        let channels = dict["channels", default: [0,1]] as? Array<UInt32>
         result(call.method + UIDevice.current.systemVersion + path)
 
         let documentDirectory = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor:nil, create:false)
@@ -32,7 +34,7 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         let fileURL = documentDirectory?.appendingPathComponent(path)
         
         if (sound == nil){
-            sound = SynthSequence(fileURL: fileURL!, bankUrl: bankURL!, patches: [74,0],channels: [0,1])
+            sound = SynthSequence(fileURL: fileURL!, bankUrl: bankURL!, patches: patches ?? [74,0] ,channels: channels ?? [0,1])
         } else {
             sound.loadFile(fileURL: fileURL!)
         }
