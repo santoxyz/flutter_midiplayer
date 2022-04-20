@@ -46,20 +46,21 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         sound.play()
 
         //mute track 0 and set volume of others
-        let muteMainTrackAndAdjustVolumes = false;
+        let muteMainTrackAndAdjustVolumes = true;
         if(muteMainTrackAndAdjustVolumes){
             if #available(iOS 10.0, *) {
                 var count = 0;
                 Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
 
                     //set volume of other tracks
-                    for i in 1...15 {
+                    for i in 0...15 {
                         if(i != 9){
                             self.sound.midiSynth.setVolume(channel: UInt32(i), v: Double(self.volume));
                         }
                     }
                     //mute rendered track
-                    self.sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
+                    //self.sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
+                    
                     count+=1;
                     print("count \(count)");
                     if (count > 10) {
@@ -91,8 +92,10 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
 
             if((sound) != nil){
                 /*ogni miditrack ha un array di eventi, ogni evento potenzialmente agisce su un canale diverso. Per evitare di analizzarmi tutti gli eventi, ciclo su tutti i 16 canali possibili.*/
+                
                 //mute rendered track
-                sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
+                //sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
+                
                 //set volume of other tracks
                 for i in 0...15 {
                     //if(i != 9){
