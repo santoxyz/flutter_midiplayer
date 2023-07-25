@@ -66,7 +66,7 @@ import AVFoundation
     override init() {
         var description = AudioComponentDescription()
         description.componentType         = kAudioUnitType_MusicDevice
-        description.componentSubType      = kAudioUnitSubType_MIDISynth
+        description.componentSubType      = kAudioUnitSubType_MIDISynth //kAudioUnitSubType_Sampler is monotimbral, kAudioUnitSubType_MIDISynth is multitimbral
         description.componentManufacturer = kAudioUnitManufacturer_Apple
         description.componentFlags        = 0
         description.componentFlagsMask    = 0
