@@ -49,7 +49,7 @@ import AVFoundation
     func setVolume(channel:UInt32, v:Double) {
         let controlModeChange = UInt32(0xB0 | channel) //Control Change
         var status = OSStatus(noErr)
-        print ("sending value \(UInt32(v)) to channel \(channel)")
+        //print ("sending value \(UInt32(v)) to channel \(channel)")
         status = MusicDeviceMIDIEvent(self.audioUnit, controlModeChange, 0x7 /*Channel Volume*/, UInt32(v), 0)
         AudioUtils.CheckError(status)
     }

@@ -22,8 +22,8 @@ class FlutterMidiplayer {
     return res;
   }
 
-  static Future<String> start() async {
-    final String res = await _channel.invokeMethod('START');
+  static Future<String> start([bool loopForever = false]) async {
+    final String res = await _channel.invokeMethod('START',{"loopForever":loopForever});
     return res;
   }
 

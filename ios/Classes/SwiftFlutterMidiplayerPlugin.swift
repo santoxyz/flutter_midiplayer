@@ -5,13 +5,27 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
 
   var sound: SynthSequence!
   var volume: Double = 100
-
+  var timerLoopForever: Timer?
+    
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "flutter_midiplayer", binaryMessenger: registrar.messenger())
     let instance = SwiftFlutterMidiplayerPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
+    @objc func checkPlaybackPosition() {
+        guard let sequencer = sound.sequencer else { return }
+        // Check if playback has reached the end
+        let beats = sound.sequencer.beats(forSeconds: sequencer.currentPositionInSeconds)
+        let total = sound.sequencer.tracks.first?.lengthInSeconds ?? 0
+        //print ("currentPosInSeconds=\(sequencer.currentPositionInSeconds) tot=\(total)")
+        if sequencer.currentPositionInSeconds >= total {
+            // Restart playback
+            sequencer.currentPositionInBeats = 0
+            sound.play()
+        }
+    }
+    
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     if(call.method == "LOAD"){
         let dict = call.arguments as! Dictionary<String, Any>
@@ -42,11 +56,15 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         sound.sequencer.currentPositionInBeats = 0
         sound.prepareToPlay()
     } else if (call.method == "START"){
+        let dict = call.arguments as? Dictionary<String, Any>
+        let loopForever = (dict?["loopForever"] as? Bool) ?? false
         result(call.method + UIDevice.current.systemVersion)
         sound.play()
+        
 
         if #available(iOS 10.0, *) {
             var count = 0;
+            print("Timer to send setVolume=\(self.volume) for 10 times to all channels but 9")
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
 
                 //set volume of other tracks
@@ -58,7 +76,7 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
                 //mute rendered track
                 self.sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
                 count+=1;
-                print("count \(count)");
+                //print("count \(count)");
                 if (count > 10) {
                     timer.invalidate()
                 }
@@ -66,11 +84,16 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         } else {
             // Fallback on earlier versions
         }
-
+        
+        if loopForever{
+            timerLoopForever = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(checkPlaybackPosition), userInfo: nil, repeats: true)
+        }
     } else if (call.method == "STOP"){
+        timerLoopForever?.invalidate()
         result(call.method + UIDevice.current.systemVersion)
         sound.stop()
     } else if (call.method == "PAUSE"){
+        timerLoopForever?.invalidate()
         result(call.method + UIDevice.current.systemVersion)
         sound.pause()
     } else if (call.method == "POSITION"){

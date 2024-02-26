@@ -93,10 +93,9 @@ import CoreAudio
         let options = AVMusicSequenceLoadOptions()
 
         loadFile(fileURL: fileURL, options: options)
-
-        //}
         
         //print(sequencer)
+
 
     }
     
@@ -126,12 +125,12 @@ import CoreAudio
         
         print("attempting to play")
         do {
-            print ("sequencer.currentPositionInBeats \(sequencer.currentPositionInBeats )")
+            //print ("sequencer.currentPositionInBeats \(sequencer.currentPositionInBeats )")
 
             try sequencer.start()
             print("playing")
             
-            print ("sequencer.currentPositionInBeats \(sequencer.currentPositionInBeats )")
+            //print ("sequencer.currentPositionInBeats \(sequencer.currentPositionInBeats )")
 
         } catch {
             print("cannot start \(error)")
