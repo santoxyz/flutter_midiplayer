@@ -91,11 +91,11 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
     } else if (call.method == "STOP"){
         timerLoopForever?.invalidate()
         result(call.method + UIDevice.current.systemVersion)
-        sound.stop()
+        sound?.stop()
     } else if (call.method == "PAUSE"){
         timerLoopForever?.invalidate()
         result(call.method + UIDevice.current.systemVersion)
-        sound.pause()
+        sound?.pause()
     } else if (call.method == "POSITION"){
         if (sound != nil) {
             result("\(sound.sequencer.currentPositionInBeats)")
