@@ -1,5 +1,4 @@
 import 'package:dart_midi/dart_midi.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -61,7 +60,7 @@ class _MyAppState extends State<MyApp> {
       }
       if(event is SetTempoEvent) {
         print ("SetTempoEvent ${event.microsecondsPerBeat}");
-        bpm = (60000000/event.microsecondsPerBeat).toInt();
+        bpm = 60000000~/event.microsecondsPerBeat;
       }
 
       });
