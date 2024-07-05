@@ -74,10 +74,14 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
 
     } else if (call.method == "STOP"){
         result(call.method + UIDevice.current.systemVersion)
-        sound.stop()
+        if (sound != nil) {
+            sound.stop()
+        }
     } else if (call.method == "PAUSE"){
         result(call.method + UIDevice.current.systemVersion)
-        sound.pause()
+        if (sound != nil) {
+            sound.pause()
+        }
     } else if (call.method == "POSITION"){
         if (sound != nil) {
             result("\(sound.sequencer.currentPositionInBeats)")
