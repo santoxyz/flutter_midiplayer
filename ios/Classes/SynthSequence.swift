@@ -120,6 +120,10 @@ import CoreAudio
     
     ///  Play the sequence.
     func play() {
+        if (sequencer == nil) {
+            return
+        }
+        
         if sequencer.isPlaying {
             stop()
         }

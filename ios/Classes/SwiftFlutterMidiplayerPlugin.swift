@@ -43,6 +43,10 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         sound.prepareToPlay()
     } else if (call.method == "START"){
         result(call.method + UIDevice.current.systemVersion)
+        if (sound == nil){
+            return
+        }
+        
         sound.play()
 
         //mute track 0 and set volume of others
@@ -74,10 +78,10 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
 
     } else if (call.method == "STOP"){
         result(call.method + UIDevice.current.systemVersion)
-        sound.stop()
+        sound?.stop()
     } else if (call.method == "PAUSE"){
         result(call.method + UIDevice.current.systemVersion)
-        sound.pause()
+        sound?.pause()
     } else if (call.method == "POSITION"){
         if (sound != nil) {
             result("\(sound.sequencer.currentPositionInBeats)")
