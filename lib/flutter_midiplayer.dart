@@ -42,6 +42,11 @@ class FlutterMidiplayer {
     return res;
   }
 
+  static Future<String> seek(double p) async {
+    final String res = await _channel.invokeMethod('SEEK',{"position":p});
+    return res;
+  }
+
   static Future<String> setVolume(double v) async {
     final String res = await _channel.invokeMethod('SETVOLUME',{"volume":v});
     return res;

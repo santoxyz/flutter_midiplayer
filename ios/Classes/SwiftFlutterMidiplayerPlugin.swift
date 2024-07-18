@@ -88,6 +88,15 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         } else {
             result("0.0")
         }
+    } else if (call.method == "SEEK"){
+        let dict = call.arguments as! Dictionary<String, Any>
+        let p = (dict["position"] as! Double)
+        if (sound != nil) {
+          sound.sequencer.currentPositionInBeats = p
+          result("\(sound.sequencer.currentPositionInBeats)")
+        } else {
+          result("0.0")
+        }
     } else if (call.method == "SETVOLUME") {
         let dict = call.arguments as! Dictionary<String, Any>
         let v = (dict["volume"] as! Double)
