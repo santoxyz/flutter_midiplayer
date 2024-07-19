@@ -12,6 +12,30 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
+    private func adjustVolume_helper() {
+        for i in 0...15 {
+            if(i != 9){
+                self.sound.midiSynth.setVolume(channel: UInt32(i), v: Double(self.volume));
+            }
+        }
+    }
+    
+    private func adjustVolume() {
+        if #available(iOS 10.0, *) {
+            var count = 0;
+            Timer.scheduledTimer(withTimeInterval: 0.0001, repeats: true) { (timer) in
+                self.adjustVolume_helper()
+                count+=1;
+                print("START timer count \(count) \(self.volume)");
+                if (count > 10) {
+                    timer.invalidate()
+                }
+            }
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     if(call.method == "LOAD"){
         let dict = call.arguments as! Dictionary<String, Any>
@@ -48,34 +72,8 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         }
         
         sound.play()
-
-        //mute track 0 and set volume of others
-        let muteMainTrackAndAdjustVolumes = true;
-        if(muteMainTrackAndAdjustVolumes){
-            if #available(iOS 10.0, *) {
-                var count = 0;
-                Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
-
-                    //set volume of other tracks
-                    for i in 0...15 {
-                        if(i != 9){
-                            self.sound.midiSynth.setVolume(channel: UInt32(i), v: Double(self.volume));
-                        }
-                    }
-                    //mute rendered track
-                    //self.sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
-                    
-                    count+=1;
-                    print("count \(count)");
-                    if (count > 10) {
-                        timer.invalidate()
-                    }
-                }
-            } else {
-                // Fallback on earlier versions
-            }
-        }
-
+        self.adjustVolume()
+        
     } else if (call.method == "STOP"){
         result(call.method + UIDevice.current.systemVersion)
         sound?.stop()
@@ -100,7 +98,9 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
     } else if (call.method == "SETVOLUME") {
         let dict = call.arguments as! Dictionary<String, Any>
         let v = (dict["volume"] as! Double)
-        if(volume != v){
+        //if(volume != v){
+        if(true){
+            
             volume = v;
 
             if((sound) != nil){
@@ -110,11 +110,8 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
                 //sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
                 
                 //set volume of other tracks
-                for i in 0...15 {
-                    //if(i != 9){
-                        sound.midiSynth.setVolume(channel: UInt32(i), v: Double(v));
-                    //}
-                }
+                self.adjustVolume();
+ 
             }
         }
         result(call.method)
