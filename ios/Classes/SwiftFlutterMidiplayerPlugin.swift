@@ -1,40 +1,16 @@
 import Flutter
+import AudioToolbox
 import UIKit
 
 public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
 
   var sound: SynthSequence!
-  var volume: Double = 100
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "flutter_midiplayer", binaryMessenger: registrar.messenger())
     let instance = SwiftFlutterMidiplayerPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
-
-    private func adjustVolume_helper() {
-        for i in 0...15 {
-            if(i != 9){
-                self.sound.midiSynth.setVolume(channel: UInt32(i), v: Double(self.volume));
-            }
-        }
-    }
-    
-    private func adjustVolume() {
-        if #available(iOS 10.0, *) {
-            var count = 0;
-            Timer.scheduledTimer(withTimeInterval: 0.0001, repeats: true) { (timer) in
-                self.adjustVolume_helper()
-                count+=1;
-                print("START timer count \(count) \(self.volume)");
-                if (count > 10) {
-                    timer.invalidate()
-                }
-            }
-        } else {
-            // Fallback on earlier versions
-        }
-    }
     
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     if(call.method == "LOAD"){
@@ -71,9 +47,9 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
             return
         }
         
+        //self.addVolumeMidiMessageInTrack(currentBeat: sound.sequencer.currentPositionInBeats)
         sound.play()
-        self.adjustVolume()
-        
+
     } else if (call.method == "STOP"){
         result(call.method + UIDevice.current.systemVersion)
         sound?.stop()
@@ -90,7 +66,8 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         let dict = call.arguments as! Dictionary<String, Any>
         let p = (dict["position"] as! Double)
         if (sound != nil) {
-          sound.sequencer.currentPositionInBeats = p
+          //print("setting currentPostitionInBeats \(p)")
+          sound?.sequencer.currentPositionInBeats = p
           result("\(sound.sequencer.currentPositionInBeats)")
         } else {
           result("0.0")
@@ -98,22 +75,11 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
     } else if (call.method == "SETVOLUME") {
         let dict = call.arguments as! Dictionary<String, Any>
         let v = (dict["volume"] as! Double)
-        //if(volume != v){
-        if(true){
-            
-            volume = v;
-
-            if((sound) != nil){
-                /*ogni miditrack ha un array di eventi, ogni evento potenzialmente agisce su un canale diverso. Per evitare di analizzarmi tutti gli eventi, ciclo su tutti i 16 canali possibili.*/
-                
-                //mute rendered track
-                //sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
-                
-                //set volume of other tracks
-                self.adjustVolume();
- 
-            }
+        if((sound) != nil){
+            sound.engine.mainMixerNode.outputVolume = Float((v / 127.0))
+            //print ("v=\(v) outVol=\(sound.engine.mainMixerNode.outputVolume)")
         }
+    
         result(call.method)
     } else if (call.method == "SETTEMPO") {
         let dict = call.arguments as! Dictionary<String, Any>
