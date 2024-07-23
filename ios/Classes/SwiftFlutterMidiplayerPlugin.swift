@@ -135,6 +135,8 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
           sound.midiSynth.setVolume(channel: 9, v: vol);
         }
         result(call.method)
+    } else if (call.method == "getPlatformVersion") {
+        result(UIDevice.current.systemName)
     } else {
         result("unknown " + call.method + UIDevice.current.systemVersion)
     }
