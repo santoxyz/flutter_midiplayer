@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future parseMidi(name) async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
+    Directory appDocDir = await getApplicationSupportDirectory();
 // Construct a midi parser
     var parser = MidiParser();
     File midiFile = File('${appDocDir.path}/$name');
@@ -80,7 +80,7 @@ class _MyAppState extends State<MyApp> {
 
   Future copyFromAssets_helper(name) async {
     rootBundle.load('assets/$name').then((content) async {
-      Directory appDocDir = await getApplicationDocumentsDirectory();
+      Directory appDocDir = await getApplicationSupportDirectory();
       File newFile = File('${appDocDir.path}/$name');
       if(!await newFile.exists()) {
         newFile.writeAsBytesSync(content.buffer.asUint8List());
