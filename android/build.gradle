@@ -22,7 +22,9 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 30
+    namespace 'com.artinoise.flutter_midiplayer'
+
+    compileSdkVersion 34
 
     defaultConfig {
         minSdkVersion 16
