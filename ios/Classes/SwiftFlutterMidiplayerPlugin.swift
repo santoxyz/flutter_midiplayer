@@ -21,7 +21,7 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         result(call.method + UIDevice.current.systemVersion + path)
 
         let documentDirectory = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor:nil, create:false)
-        
+        let appSupportDir     = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor:nil, create:false)
         let bankURL = documentDirectory?.appendingPathComponent("soundfont_GM.sf2")
 
         if FileManager.default.fileExists(atPath: bankURL!.path) {
@@ -31,8 +31,9 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
             }
 
         
-        let fileURL = documentDirectory?.appendingPathComponent(path)
-        
+        //let fileURL = documentDirectory?.appendingPathComponent(path)
+        let fileURL = appSupportDir?.appendingPathComponent(path)
+        print ("fileURL=\(fileURL)")
         if (sound == nil){
             sound = SynthSequence(fileURL: fileURL!, bankUrl: bankURL!, patches: patches ?? [74,0] ,channels: channels ?? [0,1])
         } else {
