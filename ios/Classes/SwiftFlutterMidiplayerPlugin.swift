@@ -64,19 +64,14 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
 
         if #available(iOS 10.0, *) {
             var count = 0;
-            print("Timer to send setVolume=\(self.volume) for 10 times to all channels but 9")
+            print("Timer to send setVolume=\(self.volume) for 10 times to all channels")
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
 
-                //set volume of other tracks
-                for i in 1...15 {
-                    if(i != 9){
-                        self.sound.midiSynth.setVolume(channel: UInt32(i), v: Double(self.volume));
-                    }
+                //set volume of all tracks (muting is handled via velocity=0 in Dart createCurMidiFile)
+                for i in 0...15 {
+                    self.sound.midiSynth.setVolume(channel: UInt32(i), v: Double(self.volume));
                 }
-                //mute rendered track
-                self.sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
                 count+=1;
-                //print("count \(count)");
                 if (count > 10) {
                     timer.invalidate()
                 }
@@ -110,13 +105,9 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
 
             if((sound) != nil){
                 /*ogni miditrack ha un array di eventi, ogni evento potenzialmente agisce su un canale diverso. Per evitare di analizzarmi tutti gli eventi, ciclo su tutti i 16 canali possibili.*/
-                //mute rendered track
-                sound.midiSynth.setVolume(channel: UInt32(0), v: Double(0.0));
-                //set volume of other tracks
-                for i in 1...15 {
-                    if(i != 9){
-                        sound.midiSynth.setVolume(channel: UInt32(i), v: Double(v));
-                    }
+                //set volume of all tracks (muting is handled via velocity=0 in Dart createCurMidiFile)
+                for i in 0...15 {
+                    sound.midiSynth.setVolume(channel: UInt32(i), v: Double(v));
                 }
             }
         }
@@ -135,6 +126,23 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
           sound.midiSynth.setVolume(channel: 9, v: vol);
         }
         result(call.method)
+    } else if (call.method == "SETTRACKMUTE") {
+        let dict = call.arguments as! Dictionary<String, Any>
+        let trackIndex = dict["trackIndex"] as? Int ?? 0
+        let muted = dict["muted"] as? Bool ?? false
+        if(sound != nil && sound.sequencer != nil){
+          let tracks = sound.sequencer.tracks
+          if trackIndex >= 0 && trackIndex < tracks.count {
+            tracks[trackIndex].isMuted = muted
+          }
+        }
+        result(call.method)
+    } else if (call.method == "GETTRACKCOUNT") {
+        if(sound != nil && sound.sequencer != nil){
+          result(sound.sequencer.tracks.count)
+        } else {
+          result(0)
+        }
     } else if (call.method == "getPlatformVersion") {
         result(UIDevice.current.systemName)
     } else {

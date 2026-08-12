@@ -56,4 +56,14 @@ class FlutterMidiplayer {
     final String res = await _channel.invokeMethod('SETMETRONOMEVOL',{"vol":vol});
     return res;
   }
+
+  static Future<String> setTrackMute(int trackIndex, bool muted) async {
+    final String res = await _channel.invokeMethod('SETTRACKMUTE',{"trackIndex":trackIndex, "muted":muted});
+    return res;
+  }
+
+  static Future<int> getTrackCount() async {
+    final int res = await _channel.invokeMethod('GETTRACKCOUNT');
+    return res;
+  }
 }
