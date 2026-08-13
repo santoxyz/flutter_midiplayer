@@ -93,9 +93,10 @@ import CoreAudio
         let options = AVMusicSequenceLoadOptions()
 
         loadFile(fileURL: fileURL, options: options)
+
+        //}
         
         //print(sequencer)
-
 
     }
     
@@ -124,14 +125,22 @@ import CoreAudio
         }
         
         print("attempting to play")
+        
+        // Ensure audio session is active (may have been deactivated by interruption)
         do {
-            //print ("sequencer.currentPositionInBeats \(sequencer.currentPositionInBeats )")
-
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("could not activate session: \(error)")
+        }
+        
+        // Ensure engine is running (may have been stopped by interruption/route change)
+        if !engine.isRunning {
+            startEngine()
+        }
+        
+        do {
             try sequencer.start()
             print("playing")
-            
-            //print ("sequencer.currentPositionInBeats \(sequencer.currentPositionInBeats )")
-
         } catch {
             print("cannot start \(error)")
         }
@@ -226,49 +235,34 @@ import CoreAudio
     }
     
     @objc func sessionInterrupted(_ notification: Notification) {
-        print("audio session interrupted")
-        if let engine = notification.object as? AVAudioEngine {
-            engine.stop()
+        guard let userInfo = (notification as NSNotification).userInfo as? [String: AnyObject?],
+              let reason = userInfo[AVAudioSessionInterruptionTypeKey] as? AVAudioSession.InterruptionType else {
+            return
         }
-        
-        if let userInfo = (notification as NSNotification).userInfo as? [String: AnyObject?] {
-            if let reason = userInfo[AVAudioSessionInterruptionTypeKey] as? AVAudioSession.InterruptionType {
-                switch reason {
-                case .began:
-                    print("began")
-                case .ended:
-                    print("ended")
-                }
+        switch reason {
+        case .began:
+            print("audio interruption began")
+            engine.stop()
+        case .ended:
+            print("audio interruption ended")
+            startEngine()
+            do {
+                try AVAudioSession.sharedInstance().setActive(true)
+            } catch {
+                print("could not re-activate session: \(error)")
             }
+        @unknown default:
+            break
         }
     }
-    
     @objc func sessionRouteChange(_ notification: Notification) {
-        print("sessionRouteChange")
-        if let engine = notification.object as? AVAudioEngine {
-            engine.stop()
+        guard let userInfo = (notification as NSNotification).userInfo as? [String: AnyObject?],
+              let reason = userInfo[AVAudioSessionRouteChangeReasonKey] as? AVAudioSession.RouteChangeReason else {
+            return
         }
-        
-        if let userInfo = (notification as NSNotification).userInfo as? [String: AnyObject?] {
-            
-            if let reason = userInfo[AVAudioSessionRouteChangeReasonKey] as? AVAudioSession.RouteChangeReason {
-                
-                print("audio session route change reason \(reason)")
-                
-                switch reason {
-                case .categoryChange: print("CategoryChange")
-                case .newDeviceAvailable:print("NewDeviceAvailable")
-                case .noSuitableRouteForCategory:print("NoSuitableRouteForCategory")
-                case .oldDeviceUnavailable:print("OldDeviceUnavailable")
-                case .override: print("Override")
-                case .wakeFromSleep:print("WakeFromSleep")
-                case .unknown:print("Unknown")
-                case .routeConfigurationChange:print("RouteConfigurationChange")
-                }
-            }
-            
-            let previous = userInfo[AVAudioSessionRouteChangePreviousRouteKey]
-            print("audio session route change previous \(String(describing: previous))")
+        print("audio route change: \(reason)")
+        if reason == .oldDeviceUnavailable {
+            sequencer.stop()
         }
     }
     

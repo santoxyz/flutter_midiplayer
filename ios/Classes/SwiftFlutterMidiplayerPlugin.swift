@@ -81,7 +81,7 @@ public class SwiftFlutterMidiplayerPlugin: NSObject, FlutterPlugin {
         }
         
         if loopForever{
-            timerLoopForever = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(checkPlaybackPosition), userInfo: nil, repeats: true)
+            timerLoopForever = Timer.scheduledTimer(timeInterval: 0.05, target: self, selector: #selector(checkPlaybackPosition), userInfo: nil, repeats: true)
         }
     } else if (call.method == "STOP"){
         timerLoopForever?.invalidate()
